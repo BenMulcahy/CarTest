@@ -29,8 +29,8 @@ public:
 
 	ACustomVehiclePawn();
 
-	void BeginPlay();
-	void Tick(float DeltaTime);
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 	void Accelerate(float InputValue);
 	void Brake(float InputValue);
