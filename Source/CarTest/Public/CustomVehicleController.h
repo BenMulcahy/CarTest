@@ -26,11 +26,33 @@ protected:
 	virtual void SetupInputComponent() override;
 	virtual void Tick(float DeltaTime) override;
 
+private:
+	/// <summary>
+	/// Determines if camera can free rotate around vehicle or snaps to L/R/Behind when look input recieved
+	/// </summary>
+	/// <returns>True if can free move</returns>
+	bool CanCameraFreeMove();
 
 #pragma region Variables
+
+protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 		TObjectPtr<class ACustomVehiclePawn> playerVehicle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera | Controller", meta = (ClampMin = "0", UIMin = "0"))
+		float ControllerLookXRate = 5.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera | Controller", meta = (ClampMin = "0", UIMin = "0"))
+		float ControllerLookYRate = 5.f;
+
+	/// <summary>
+	/// Current Camera used by player
+	/// </summary>
+	UPROPERTY(BlueprintReadWrite)
+		TObjectPtr<class UCameraComponent> CurrentCamera;
+
+private:
+	bool bCameraInput = false;
 
 #pragma endregion
 
@@ -47,8 +69,39 @@ protected:
 		void DoTurn(const FInputActionValue& Value);
 
 	UFUNCTION(BlueprintCallable)
-		void Look(const FInputActionValue& Value);
+		void DoHandbrake(const FInputActionValue& Value);
 
+	/// <summary>
+	/// Reset Current Camera to default position
+	/// </summary>
+	UFUNCTION(BlueprintCallable)
+		void ResetCamera();
+
+
+	/// <summary>
+	/// Camera movement
+	/// </summary>
+	/// <param name="Value"></param>
+	UFUNCTION(BlueprintCallable)
+		void ControllerLook(const FInputActionValue& Value);
+	
+	/// <summary>
+	/// Mouse Camera Movement
+	/// </summary>
+	/// <param name="Value"></param>
+	UFUNCTION(BlueprintCallable)
+		void MouseLook(const FInputActionValue& Value);
+
+	/// <summary>
+	/// Snap Camera to look backwards
+	/// </summary>
+	UFUNCTION(BlueprintCallable)
+		void LookBehind();
+
+
+	/// <summary>
+	/// Cycle between available vehicle cameras
+	/// </summary>
 	UFUNCTION(BlueprintCallable)
 		void ChangeCamera();
 
@@ -65,6 +118,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UInputAction> BrakeAction;
 
+	/* Handbrake IA */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UInputAction> HandbrakeAction;
+
 	/* Turn IA */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UInputAction> SteerAction;
@@ -75,7 +132,10 @@ public:
 
 	/* Camera Look */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		TObjectPtr<UInputAction> CameraLookAction;
+		TObjectPtr<UInputAction> CameraLookActionController;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UInputAction> CameraLookActionMouse;
 
 #pragma endregion
 };

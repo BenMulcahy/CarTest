@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+class UCameraComponent;
+
 UCLASS()
 class ACustomVehiclePawn : public AWheeledVehiclePawn
 {
@@ -35,7 +38,13 @@ public:
 	void Accelerate(float InputValue);
 	void Brake(float InputValue);
 	void Steering(float InputValue);
-	void ChangeCamera();
+	void Handbrake(bool InputValue);
+	/// <summary>
+	/// Populate all cameras on vehicle
+	/// </summary>
+	/// <returns>Array of UCameraComponent Pointers</returns>
+	TArray<TObjectPtr<UCameraComponent>> GetVehicleCameras();
+	TObjectPtr<UCameraComponent> GetActiveCamera();
 	
 #pragma endregion
 
@@ -43,8 +52,7 @@ public:
 public:
 
 private:
-	TArray<TObjectPtr<class UCameraComponent>> VehicleCameras;
-	
+	float CachedMaxRPM = 7500.f; //Used to store max rpm when not in reverse
 
 protected:
 
@@ -52,7 +60,19 @@ protected:
 		TObjectPtr<class USpringArmComponent> SpringArm;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Chase Camera")
-		TObjectPtr<class UCameraComponent> ChaseCamera;
+		TObjectPtr<UCameraComponent> ChaseCamera;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Hood Camera")
+		TObjectPtr<UCameraComponent> HoodCamera;	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Cockpit Camera")
+		TObjectPtr<UCameraComponent> CockpitCamera;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Vehicle")
+		TObjectPtr<class UChaosWheeledVehicleMovementComponent> Vehicle;
+
+	UPROPERTY(BlueprintReadOnly, Category =  "Camera")
+		TArray<TObjectPtr<UCameraComponent>> VehicleCameras;
 
 #pragma endregion
 
