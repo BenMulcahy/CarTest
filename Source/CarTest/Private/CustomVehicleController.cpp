@@ -123,12 +123,13 @@ void ACustomVehicleController::ChangeCamera()
     UE_LOG(LogPlayerController, Warning, TEXT("Change Camera Input"));
     
     int16 fromCameraIndex = playerVehicle->GetVehicleCameras().Find(CurrentCamera); //Get current camera index in vehicleCameras Array 
-    TObjectPtr<UCameraComponent> toCamera = playerVehicle->GetVehicleCameras().IsValidIndex(fromCameraIndex + 1) ? playerVehicle->GetVehicleCameras()[fromCameraIndex + 1] : playerVehicle->GetVehicleCameras()[0]; //Set current camera to next in index if valid else set back to first camera in index
+    TObjectPtr<UCustomVehicleCamera> toCamera = playerVehicle->GetVehicleCameras().IsValidIndex(fromCameraIndex + 1) ? playerVehicle->GetVehicleCameras()[fromCameraIndex + 1] : playerVehicle->GetVehicleCameras()[0]; //Set current camera to next in index if valid else set back to first camera in index
 
 
     toCamera->SetActive(true); //enable next cam
     CurrentCamera->SetActive(false); //disable current cam
     CurrentCamera = playerVehicle->GetActiveCamera(); //update current camera - Use GetActiveCamera instead of hard set toCamera for redundency
+    ResetCamera();
 }
 
 void ACustomVehicleController::ControllerLook(const FInputActionValue& Value)
@@ -186,13 +187,24 @@ void ACustomVehicleController::LookBehind(const FInputActionValue& Value)
 {
     if (Value.Get<bool>())
     {
-        //TODO - Implement for inner cab vehicles - (if cam = notFreeCam then switch to freeCam)
-        FRotator behindRot = (playerVehicle->GetActorForwardVector() * -1).ToOrientationRotator();
-        playerVehicle->GetController()->SetControlRotation(behindRot);
+        if (!CurrentCamera->CanFreeRotate()) //For cockpit/hood cam etc -> switch to chase cam
+        {
+            playerVehicle->GetVehicleCameras()[0]->SetActive(true); //chase cam will be index 0 
+            CurrentCamera->SetActive(false);
+            ResetCamera();
+        }
+
+        playerVehicle->GetController()->SetControlRotation((playerVehicle->GetActorForwardVector() * -1).ToOrientationRotator());
         bLookBack = true;
     }
     else
     {
+        if (!CurrentCamera->IsActive()) //return to currentCamera if switched to chase cam
+        {
+            playerVehicle->GetVehicleCameras()[0]->SetActive(false); //chase cam will be index 0 
+            CurrentCamera->SetActive(true);
+        }
+        ResetCamera();
         bLookBack = false;
         ResetCamera();
     }

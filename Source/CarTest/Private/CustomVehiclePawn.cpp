@@ -76,25 +76,25 @@ ACustomVehiclePawn::ACustomVehiclePawn()
 
 
    //Setup Chase Camera
-   ChaseCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ChaseCam"));
+   ChaseCamera = CreateDefaultSubobject<UCustomVehicleCamera>(TEXT("ChaseCam"));
    ChaseCamera->SetupAttachment(SpringArm);
    ChaseCamera->bUsePawnControlRotation = false;
    ChaseCamera->FieldOfView = 110.0f;
+  
 
    //Setup POV Camera
-   CockpitCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("CockpitCamera"));
+   CockpitCamera = CreateDefaultSubobject<UCustomVehicleCamera>(TEXT("CockpitCamera"));
    CockpitCamera->SetupAttachment(RootComponent);
    CockpitCamera->bUsePawnControlRotation = false;
    CockpitCamera->FieldOfView = 110.0f;
+   CockpitCamera->bFreeRotatable = false;
 
    //TODO: Setup Hood Camera
-   HoodCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("HoodCamera"));
+   HoodCamera = CreateDefaultSubobject<UCustomVehicleCamera>(TEXT("HoodCamera"));
    HoodCamera->SetupAttachment(RootComponent);
    HoodCamera->bUsePawnControlRotation = false;
    HoodCamera->FieldOfView = 110.0f;
-
-   //TODO: Setup Reverse Camera
-   
+   HoodCamera->bFreeRotatable = false;
 #pragma endregion
 }
 
@@ -137,15 +137,15 @@ void ACustomVehiclePawn::Handbrake(bool InputValue)
     Vehicle->SetHandbrakeInput(InputValue);
 }
 
-TArray<TObjectPtr<class UCameraComponent>> ACustomVehiclePawn::GetVehicleCameras()
+TArray<TObjectPtr<class UCustomVehicleCamera>> ACustomVehiclePawn::GetVehicleCameras()
 {
-    GetComponents<UCameraComponent>(VehicleCameras);
+    GetComponents<UCustomVehicleCamera>(VehicleCameras);
     //UE_LOG(LogTemp, Warning, TEXT("No. Cameras: %d"), VehicleCameras.Num());
 
     return VehicleCameras;
 }
 
-TObjectPtr<class UCameraComponent> ACustomVehiclePawn::GetActiveCamera()
+TObjectPtr<class UCustomVehicleCamera> ACustomVehiclePawn::GetActiveCamera()
 {
     if (GetVehicleCameras().Num() == 0)
     {
@@ -154,9 +154,9 @@ TObjectPtr<class UCameraComponent> ACustomVehiclePawn::GetActiveCamera()
     }
     else 
     {
-        TObjectPtr<UCameraComponent> ActiveCam;
+        TObjectPtr<UCustomVehicleCamera> ActiveCam;
 
-        for (TObjectPtr<UCameraComponent> camera : GetVehicleCameras())
+        for (TObjectPtr<UCustomVehicleCamera> camera : GetVehicleCameras())
         {
             if (camera->IsActive())
             {

@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "WheeledVehiclePawn.h"
+#include "CustomVehicleCamera.h"
 #include "CustomVehiclePawn.generated.h"
 
 /**
  * 
  */
 
-class UCameraComponent;
+class UCustomVehicleCamera;
 
 UCLASS()
 class ACustomVehiclePawn : public AWheeledVehiclePawn
@@ -43,8 +44,8 @@ public:
 	/// Populate all cameras on vehicle
 	/// </summary>
 	/// <returns>Array of UCameraComponent Pointers</returns>
-	TArray<TObjectPtr<UCameraComponent>> GetVehicleCameras();
-	TObjectPtr<UCameraComponent> GetActiveCamera();
+	TArray<TObjectPtr<UCustomVehicleCamera>> GetVehicleCameras();
+	TObjectPtr<UCustomVehicleCamera> GetActiveCamera();
 	
 #pragma endregion
 
@@ -60,19 +61,19 @@ protected:
 		TObjectPtr<class USpringArmComponent> SpringArm;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Chase Camera")
-		TObjectPtr<UCameraComponent> ChaseCamera;
+		TObjectPtr<UCustomVehicleCamera> ChaseCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Hood Camera")
-		TObjectPtr<UCameraComponent> HoodCamera;	
+		TObjectPtr<UCustomVehicleCamera> HoodCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Cockpit Camera")
-		TObjectPtr<UCameraComponent> CockpitCamera;
+		TObjectPtr<UCustomVehicleCamera> CockpitCamera;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Vehicle")
 		TObjectPtr<class UChaosWheeledVehicleMovementComponent> Vehicle;
 
 	UPROPERTY(BlueprintReadOnly, Category =  "Camera")
-		TArray<TObjectPtr<UCameraComponent>> VehicleCameras;
+		TArray<TObjectPtr<UCustomVehicleCamera>> VehicleCameras;
 
 #pragma endregion
 

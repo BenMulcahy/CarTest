@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "CustomVehicleCamera.h"
 #include "CustomVehicleController.generated.h"
 
 /**
@@ -51,7 +52,7 @@ protected:
 	/// Current Camera used by player
 	/// </summary>
 	UPROPERTY(BlueprintReadWrite)
-		TObjectPtr<class UCameraComponent> CurrentCamera;
+		TObjectPtr<class UCustomVehicleCamera> CurrentCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera" , meta = (ClampMin = "0.25", UIMin = "0.25", DisplayName = "Camera Reset Timer"))
 		float TimeToCameraReset = 0.5f;
