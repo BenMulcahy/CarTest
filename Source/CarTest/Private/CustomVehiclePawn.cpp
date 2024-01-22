@@ -18,7 +18,6 @@ ACustomVehiclePawn::ACustomVehiclePawn()
 #pragma region BaseVehicleSetup
    VehicleMesh->SetSimulatePhysics(true);
 
-   //TODO: Default Engine Settings
    //Default Torque Setup -> Based on MR2 Test to achieve near real world results (its close enough)
    Vehicle->EngineSetup.MaxRPM = 7500.0f;
    Vehicle->EngineSetup.MaxTorque = 166.0f;

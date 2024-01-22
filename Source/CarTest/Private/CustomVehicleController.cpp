@@ -29,6 +29,7 @@ void ACustomVehicleController::BeginPlay()
     } 
    
      CurrentCamera = playerVehicle->GetActiveCamera();
+     
 }
 
 void ACustomVehicleController::SetupInputComponent()
@@ -63,6 +64,11 @@ void ACustomVehicleController::SetupInputComponent()
         //Controller Look
         EInputComponent->BindAction(CameraLookActionController, ETriggerEvent::Triggered, this, &ACustomVehicleController::ControllerLook);
 
+
+        //Action Values
+        MouseLookBindingValue = &EInputComponent->BindActionValue(CameraLookActionMouse);
+        ControllerLookBindingValue = &EInputComponent->BindActionValue(CameraLookActionController);
+
         UE_LOG(LogPlayerController, Warning, TEXT("Player Input Setup Complete"));
     }
 
@@ -71,33 +77,14 @@ void ACustomVehicleController::SetupInputComponent()
     
 }
 
-
-//TODO: Does this need to tick?
 void ACustomVehicleController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Current Camera: %s"), CurrentCamera ? *CurrentCamera.GetName() : TEXT("Null")));
+    if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Current Camera: %s  Reset Time: %f"), CurrentCamera ? *CurrentCamera.GetName() : TEXT("Null"), CameraResetTimer));
 
-    //TODO: Implement camera reset after no input for a short while
-    /*
-    if (!bCameraInput)
-    {
-        ResetCamera();
-    }
-    */
-}
-
-//TODO: Implement
-bool ACustomVehicleController::CanCameraFreeMove()
-{
-    if (true)
-    {
-        return true;
-    }
-   
-    return false;
- 
+    UpdateCameraResetTimer();
+    
 }
 
 #pragma region Input Actions
@@ -142,15 +129,47 @@ void ACustomVehicleController::ChangeCamera()
     CurrentCamera = playerVehicle->GetActiveCamera(); //update current camera - Use GetActiveCamera instead of hard set toCamera for redundency
 }
 
-
 void ACustomVehicleController::ControllerLook(const FInputActionValue& Value)
 {
     /* Controller */
     
     //Turn
     playerVehicle->AddControllerYawInput(Value.Get<FVector2D>().X * (ControllerLookXRate * 10) * GetWorld()->GetDeltaSeconds());
+}
 
-    bCameraInput = true;
+void ACustomVehicleController::MouseLook(const FInputActionValue& Value)
+{
+    if (Value.Get<float>() != 0)
+    {
+        playerVehicle->AddControllerYawInput(Value.Get<FVector2D>().X);
+    }
+}
+
+bool ACustomVehicleController::IsCameraInput()
+{
+    if (MouseLookBindingValue->GetValue().Get<FVector2D>().X != 0 || ControllerLookBindingValue->GetValue().Get<FVector2D>().X != 0)
+    {
+        bCameraInput = true;
+    }
+    else bCameraInput = false;
+
+    //UE_LOG(LogPlayerController, Display, TEXT("Camera Input: %s"), bCameraInput ? TEXT("True") : TEXT("False"));
+    return bCameraInput;
+}
+
+void ACustomVehicleController::UpdateCameraResetTimer()
+{
+    if (!IsCameraInput())
+    {
+        if (CameraResetTimer >= TimeToCameraReset)
+        {
+            ResetCamera();
+            return;
+        }
+
+        CameraResetTimer += GetWorld()->DeltaTimeSeconds;
+    }
+    else CameraResetTimer = 0.f;
 }
 
 
@@ -160,19 +179,9 @@ void ACustomVehicleController::ResetCamera()
     playerVehicle->GetController()->SetControlRotation(playerVehicle->GetActorRotation());
 }
 
-void ACustomVehicleController::MouseLook(const FInputActionValue& Value)
-{
-    if (Value.Get<float>() != 0)
-    {
-        playerVehicle->AddControllerYawInput(Value.Get<FVector2D>().X);
-    }
-
-    bCameraInput = true;
-}
-
 void ACustomVehicleController::LookBehind()
 {
-
+    //TODO: Implement
 }
 
 #pragma endregion

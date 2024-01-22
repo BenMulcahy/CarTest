@@ -26,12 +26,14 @@ protected:
 	virtual void SetupInputComponent() override;
 	virtual void Tick(float DeltaTime) override;
 
+
 private:
 	/// <summary>
 	/// Determines if camera can free rotate around vehicle or snaps to L/R/Behind when look input recieved
 	/// </summary>
 	/// <returns>True if can free move</returns>
-	bool CanCameraFreeMove();
+	bool IsCameraInput();
+	void UpdateCameraResetTimer();
 
 #pragma region Variables
 
@@ -51,8 +53,15 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 		TObjectPtr<class UCameraComponent> CurrentCamera;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera" , meta = (ClampMin = "0.25", UIMin = "0.25", DisplayName = "Camera Reset Timer"))
+		float TimeToCameraReset = 2.f;
+
 private:
 	bool bCameraInput = false;
+	float CameraResetTimer = 0.f;
+
+	TObjectPtr<struct FEnhancedInputActionValueBinding> MouseLookBindingValue;
+	 TObjectPtr<struct FEnhancedInputActionValueBinding> ControllerLookBindingValue;
 
 #pragma endregion
 
