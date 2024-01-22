@@ -39,7 +39,6 @@ void ACustomVehicleController::SetupInputComponent()
     //Bind Inputs
     if (TObjectPtr<UEnhancedInputComponent> EInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
     {
-
         //Accel
         EInputComponent->BindAction(AccelerateAction, ETriggerEvent::Triggered, this, &ACustomVehicleController::DoAccelerate);
 
@@ -63,6 +62,9 @@ void ACustomVehicleController::SetupInputComponent()
 
         //Controller Look
         EInputComponent->BindAction(CameraLookActionController, ETriggerEvent::Triggered, this, &ACustomVehicleController::ControllerLook);
+
+        //Look Backwards
+        EInputComponent->BindAction(LookBehindAction, ETriggerEvent::Triggered, this, &ACustomVehicleController::LookBehind);
 
 
         //Action Values
@@ -90,7 +92,7 @@ void ACustomVehicleController::Tick(float DeltaTime)
 #pragma region Input Actions
 
 /**       VEHICLE CONTROLS            **/
-
+#pragma region VehicleControls
 void ACustomVehicleController::DoAccelerate(const FInputActionValue& Value)
 {
     playerVehicle->Accelerate(Value.Get<float>());   
@@ -110,10 +112,10 @@ void ACustomVehicleController::DoHandbrake(const FInputActionValue& Value)
 {
     playerVehicle->Handbrake(Value.Get<bool>());
 }
-
+#pragma endregion
 
 /**       CAMERA CONTROLS            **/
-
+#pragma region Camera
 void ACustomVehicleController::ChangeCamera()
 {
     if (!CurrentCamera) { UE_LOG(LogPlayerController, Error, TEXT("No Current Camera")); return; }
@@ -147,6 +149,7 @@ void ACustomVehicleController::MouseLook(const FInputActionValue& Value)
 
 bool ACustomVehicleController::IsCameraInput()
 {
+    if (bLookBack) { bCameraInput = true; return bCameraInput; }
     if (MouseLookBindingValue->GetValue().Get<FVector2D>().X != 0 || ControllerLookBindingValue->GetValue().Get<FVector2D>().X != 0)
     {
         bCameraInput = true;
@@ -172,16 +175,28 @@ void ACustomVehicleController::UpdateCameraResetTimer()
     else CameraResetTimer = 0.f;
 }
 
-
 void ACustomVehicleController::ResetCamera()
 {
     //Set Controller Yaw and Pitch to Fwd
     playerVehicle->GetController()->SetControlRotation(playerVehicle->GetActorRotation());
+    CameraResetTimer = TimeToCameraReset;
 }
 
-void ACustomVehicleController::LookBehind()
+void ACustomVehicleController::LookBehind(const FInputActionValue& Value)
 {
-    //TODO: Implement
+    if (Value.Get<bool>())
+    {
+        //TODO - Implement for inner cab vehicles - (if cam = notFreeCam then switch to freeCam)
+        FRotator behindRot = (playerVehicle->GetActorForwardVector() * -1).ToOrientationRotator();
+        playerVehicle->GetController()->SetControlRotation(behindRot);
+        bLookBack = true;
+    }
+    else
+    {
+        bLookBack = false;
+        ResetCamera();
+    }
 }
+#pragma endregion
 
 #pragma endregion

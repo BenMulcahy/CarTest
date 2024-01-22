@@ -54,12 +54,12 @@ protected:
 		TObjectPtr<class UCameraComponent> CurrentCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera" , meta = (ClampMin = "0.25", UIMin = "0.25", DisplayName = "Camera Reset Timer"))
-		float TimeToCameraReset = 2.f;
+		float TimeToCameraReset = 0.5f;
 
 private:
 	bool bCameraInput = false;
 	float CameraResetTimer = 0.f;
-
+	bool bLookBack = false;
 	TObjectPtr<struct FEnhancedInputActionValueBinding> MouseLookBindingValue;
 	 TObjectPtr<struct FEnhancedInputActionValueBinding> ControllerLookBindingValue;
 
@@ -105,7 +105,7 @@ protected:
 	/// Snap Camera to look backwards
 	/// </summary>
 	UFUNCTION(BlueprintCallable)
-		void LookBehind();
+		void LookBehind(const FInputActionValue& Value);
 
 
 	/// <summary>
@@ -145,6 +145,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UInputAction> CameraLookActionMouse;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UInputAction> LookBehindAction;
 
 #pragma endregion
 };
